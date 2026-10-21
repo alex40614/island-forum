@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Island Forum - Auth Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #0f172a;
+            color: #f8fafc;
+        }
+        .section {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #22d3ee;
+            color: #0f172a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #06b6d4;
+        }
+        pre {
+            background: #0f172a;
+            border: 1px solid #475569;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .success { color: #22d3ee; }
+        .error { color: #f97316; }
+        input {
+            background: #0f172a;
+            border: 1px solid #475569;
+            color: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏝️ Island Forum - 认证测试</h1>
+
+    <div class="section">
+        <h2>1. 登录测试</h2>
+        <input type="text" id="username" value="admin" placeholder="用户名">
+        <input type="password" id="password" value="admin123" placeholder="密码">
+        <button onclick="testLogin()">登录</button>
+        <button onclick="clearStorage()">清除存储</button>
+        <div id="login-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>2. 获取当前用户</h2>
+        <button onclick="testGetCurrentUser()">获取用户信息</button>
+        <div id="user-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>3. LocalStorage 状态</h2>
+        <button onclick="showStorage()">查看存储</button>
+        <div id="storage-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>4. 测试受保护的 API</h2>
+        <button onclick="testProtectedAPI()">获取帖子列表</button>
+        <div id="protected-result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+
+        async function testLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const result = document.getElementById('login-result');
+
+            try {
+                result.innerHTML = '<p>登录中...</p>';
+
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 存储 token
+                    localStorage.setItem('token', data.access_token);
+
+                    result.innerHTML = `
+                        <p class="success">✅ 登录成功!</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+
+                    // 自动获取用户信息
+                    setTimeout(testGetCurrentUser, 500);
+                } else {
+                    result.innerHTML = `
+                        <p class="error">❌ 登录失败</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ 错误: ${error.message}</p>`;
+            }
+        }
+
+        async function testGetCurrentUser() {
+            const result = document.getElementById('user-result');
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                result.innerHTML = '<p class="error">❌ 没有找到 token，请先登录</p>';
+                return;
+            }
+
+            try {
+                result.innerHTML = '<p>获取用户信息中...</p>';
+
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    result.innerHTML = `
+                        <p class="success">✅ 获取用户信息成功!</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <p class="error">❌ 获取失败 (${response.status})</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ 错误: ${error.message}</p>`;
+            }
+        }
+
+        async function testProtectedAPI() {
+            const result = document.getElementById('protected-result');
+            const token = localStorage.getItem('token');
+
+            try {
+                result.innerHTML = '<p>获取帖子列表中...</p>';
+
+                const response = await fetch(`${API_BASE}/posts?sort=latest&limit=5`, {
+                    headers: token ? {
+                        'Authorization': `Bearer ${token}`
+                    } : {}
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    result.innerHTML = `
+                        <p class="success">✅ 获取成功!</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <p class="error">❌ 获取失败 (${response.status})</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ 错误: ${error.message}</p>`;
+            }
+        }
+
+        function showStorage() {
+            const result = document.getElementById('storage-result');
+            const token = localStorage.getItem('token');
+            const authStorage = localStorage.getItem('auth-storage');
+
+            result.innerHTML = `
+                <p><strong>token:</strong></p>
+                <pre>${token || '(无)'}</pre>
+
+                <p><strong>auth-storage (Zustand):</strong></p>
+                <pre>${authStorage ? JSON.stringify(JSON.parse(authStorage), null, 2) : '(无)'}</pre>
+
+                <p><strong>所有 localStorage 键:</strong></p>
+                <pre>${JSON.stringify(Object.keys(localStorage), null, 2)}</pre>
+            `;
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            alert('✅ LocalStorage 已清除');
+            location.reload();
+        }
+
+        // 页面加载时显示存储状态
+        window.onload = showStorage;
+    </script>
+</body>
+</html>
