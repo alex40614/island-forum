@@ -27,7 +27,9 @@ export default function NotificationPanel({ isOpen, onClose }: NotificationPanel
       setNotifications(prev => [notification, ...prev]);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const loadNotifications = async () => {

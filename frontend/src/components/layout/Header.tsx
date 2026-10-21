@@ -37,7 +37,9 @@ export const Header: React.FC = () => {
       setUnreadCount(prev => prev + 1);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const loadUnreadCount = async () => {
