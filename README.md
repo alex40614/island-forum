@@ -1,62 +1,42 @@
-# Island Forum (島嶼論壇)
+# 🏝️ Island Forum - 海岛论坛
 
-> 讓好奇心，有地方停靠
+现代化的论坛系统，基于 FastAPI + React + TypeScript 构建。
 
-一個現代化的中文社群論壇平台，強調高質量對話和真誠連結。
+## ✨ 功能特性
 
-## 功能特色
+- 🔐 用户认证系统（注册、登录、JWT）
+- 📝 帖子发布与管理
+- 💬 评论系统
+- 👤 用户个人资料
+- 🎨 现代化 UI 设计
+- 📱 响应式布局
 
-- 🏝️ **主題討論** - 按興趣組織的討論版塊
-- 💬 **即時互動** - WebSocket 實時通知和在線狀態
-- 🔍 **智能搜索** - 全文搜索，支持快捷鍵 ⌘K
-- ⭐ **個性化收藏** - 收藏喜歡的討論和用戶
-- 📊 **數據統計** - 實時社群數據儀表板
-- 🎯 **活動管理** - 線下聚會組織和報名
-- 📱 **響應式設計** - 完美支持桌面和移動端
+## 🚀 快速部署
 
-## 技術棧
+### 一键部署到云端
 
-### 後端
-- FastAPI - 現代 Python Web 框架
-- PostgreSQL - 主數據庫
-- Redis - 緩存和會話管理
-- SQLAlchemy - ORM
-- Alembic - 數據庫遷移
-- WebSocket - 實時通信
+**前端** (已部署):  
+[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/alex40614/island-forum)
 
-### 前端
-- React 18 + TypeScript
-- Vite - 構建工具
-- Tailwind CSS - UI 框架
-- React Query - 數據同步
-- Zustand - 狀態管理
-- React Router - 路由管理
+🌐 **在线访问**: https://island-forum.vercel.app
 
-## 快速開始
+**后端**:  
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/alex40614/island-forum)
 
-### 環境要求
+### 本地运行
 
-- Python 3.12+
-- Node.js 18+
-- PostgreSQL 14+
-- Redis 6+
-
-### 後端安裝
+#### 后端
 
 ```bash
 cd backend
 pip install -r requirements.txt
-cp .env.example .env
-# 編輯 .env 設置數據庫連接
-
-# 運行數據庫遷移
-alembic upgrade head
-
-# 啟動開發服務器
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload
 ```
 
-### 前端安裝
+后端运行在: http://localhost:8000  
+API 文档: http://localhost:8000/docs
+
+#### 前端
 
 ```bash
 cd frontend
@@ -64,96 +44,78 @@ npm install
 npm run dev
 ```
 
-訪問 http://localhost:5173
+前端运行在: http://localhost:5173
 
-## 項目結構
+### 测试账号
+
+- **管理员**: 用户名 `admin` / 密码 `admin123`
+- **普通用户**: 用户名 `testuser` / 密码 `test123`
+
+## 🛠️ 技术栈
+
+### 后端
+- **FastAPI** - 现代 Python Web 框架
+- **SQLAlchemy** - ORM
+- **SQLite** - 数据库
+- **JWT** - 身份认证
+- **Pydantic** - 数据验证
+
+### 前端
+- **React 18** - UI 框架
+- **TypeScript** - 类型安全
+- **Vite** - 构建工具
+- **Tailwind CSS** - 样式框架
+- **Lucide React** - 图标库
+
+## 📖 文档
+
+- [快速开始指南](QUICKSTART.md)
+- [部署指南](DEPLOYMENT.md)
+- [API 文档](http://localhost:8000/docs) (需要先启动后端)
+
+## 📝 开发
+
+### 项目结构
 
 ```
 island-forum/
-├── backend/                 # FastAPI 後端
+├── backend/          # FastAPI 后端
 │   ├── app/
-│   │   ├── api/            # API 路由
-│   │   ├── core/           # 核心配置
-│   │   ├── models/         # 數據模型
-│   │   ├── schemas/        # Pydantic schemas
-│   │   ├── services/       # 業務邏輯
-│   │   └── utils/          # 工具函數
-│   ├── alembic/            # 數據庫遷移
-│   ├── tests/              # 測試
-│   └── main.py             # 應用入口
-├── frontend/               # React 前端
-│   ├── src/
-│   │   ├── components/     # React 組件
-│   │   ├── pages/          # 頁面組件
-│   │   ├── hooks/          # 自定義 hooks
-│   │   ├── store/          # 狀態管理
-│   │   ├── api/            # API 客戶端
-│   │   └── utils/          # 工具函數
-│   └── public/             # 靜態資源
-└── docker-compose.yml      # Docker 編排
+│   │   ├── main.py       # 应用入口
+│   │   ├── models.py     # 数据模型
+│   │   ├── schemas.py    # Pydantic schemas
+│   │   ├── crud.py       # 数据库操作
+│   │   └── auth.py       # 认证逻辑
+│   └── requirements.txt
+└── frontend/         # React 前端
+    ├── src/
+    │   ├── App.tsx       # 主应用
+    │   ├── components/   # UI 组件
+    │   └── services/     # API 服务
+    └── package.json
 ```
 
-## 開發指南
+### 环境变量
 
-### API 文檔
-
-啟動後端後訪問：
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
-
-### 數據庫遷移
-
-```bash
-# 創建新遷移
-alembic revision --autogenerate -m "描述"
-
-# 執行遷移
-alembic upgrade head
-
-# 回滾
-alembic downgrade -1
+后端 `.env`:
 ```
-
-## 部署
-
-### Docker 部署
-
-```bash
-docker-compose up -d
-```
-
-### Railway 部署
-
-項目已配置 `railway.json`，可直接部署到 Railway。
-
-### Render 部署
-
-項目已配置 `render.yaml`，可直接部署到 Render。
-
-## 環境變量
-
-```env
-# 數據庫
-DATABASE_URL=postgresql://user:password@localhost:5432/island_forum
-REDIS_URL=redis://localhost:6379/0
-
-# JWT 安全
 SECRET_KEY=your-secret-key-here
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-
-# CORS
-ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
-
-# 文件上傳
-UPLOAD_DIR=./uploads
-MAX_UPLOAD_SIZE=10485760  # 10MB
+DATABASE_URL=sqlite:///./island_forum.db
 ```
 
-## 授權
+前端 `.env`:
+```
+VITE_API_URL=http://localhost:8000
+```
+
+## 📄 License
 
 MIT License
 
-## 作者
+## 👤 作者
 
-© 2026 ISLAND Community
+Alex (@alex40614)
+
+---
+
+⭐ 如果觉得这个项目不错，请给个 Star！
